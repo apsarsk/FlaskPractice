@@ -78,14 +78,14 @@ from werkzeug.utils import secure_filename
 
 from flask import make_response,abort,make_response,render_template
 
-@app.route('/')
-def index():
-    return redirect(url_for('login'))
+# @app.route('/')
+# def index():
+#     return redirect(url_for('login'))
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+# @app.route('/login')
+# def login():
+#     abort(401)
+#     this_is_never_executed()
 
 # @app.errorhandler(404)
 # def page_not_found(error):
@@ -94,15 +94,16 @@ def login():
 
 class User:
 
-    def __init__(self, username, theme, profile_picture):
+    def __init__(self, username, theme, image):
         self.username = username
         self.theme = theme
-        self.profile_picture = profile_picture
+        self.image=image
 
     def to_json(self):
         return {
             "username": self.username,
-            "theme": self.theme
+            "theme": self.theme,
+            "image": self.image
         }
 
 
@@ -136,6 +137,30 @@ def get_all_users():
         ]
 
     return users
+def get_current_user():
+
+    user = User(
+        username="Apsar",
+        theme="dark",
+        image="profile.png"
+    )
+
+    return user
+@app.route("/me")
+def me_api():
+
+    user = get_current_user()
+
+    return render_template(
+        "me.html",
+        username=user.username,
+        theme=user.theme,
+        image=user.image
+    )
+
+@app.route("/")
+def home():
+    return render_template("me.html",username="Apsar",theme="",image="profile.png")
 
 @app.errorhandler(404)
 def page_not_found(error):
