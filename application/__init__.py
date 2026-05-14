@@ -1,3 +1,4 @@
+from fileinput import filename
 import os
 
 from flask import Flask,render_template,request
@@ -92,40 +93,18 @@ def login():
 
 
 class User:
-    def __init__(self, username, theme, image):
+
+    def __init__(self, username, theme, profile_picture):
         self.username = username
         self.theme = theme
-        self.image = image
-def get_current_user():
+        self.profile_picture = profile_picture
 
-    user = User(
-        username="Apsar",
-        theme="dark",
-        image="profile.png"
-    )
+    def to_json(self):
+        return {
+            "username": self.username,
+            "theme": self.theme
+        }
 
-    return user
-
-@app.errorhandler(404)
-def page_not_found(error):
-    resp=make_response(render_template('error.html', error_code=404, message="Page not found", custom_header="A value"), 404)
-    resp.headers['X-Something']='A value'
-    return resp
-
-@app.route("/images/<filename>")
-def user_image(filename):
-    return f"Image file: {filename}"
-
-@app.route('/me')
-def me_api():
-    user=get_current_user()
-    return render_template(
-        'me.html',
-        username=user.username,
-        theme=user.theme,
-        image=url_for("user_image",filename=user.image),
-
-    )
 
 def get_all_users():
 
@@ -137,10 +116,37 @@ def get_all_users():
 
     return users
 
+
 @app.route("/users")
 def users_api():
+
     users = get_all_users()
+
     return [user.to_json() for user in users]
+
+        
+
+def get_all_users():
+
+    users = [
+        User("Apsar", "dark", "profile.png"),
+        User("John", "light", "john.png"),
+        User("David", "blue", "david.png")
+        
+        ]
+
+    return users
+
+@app.errorhandler(404)
+def page_not_found(error):
+    resp=make_response(render_template('error.html', error_code=404, message="Page not found", custom_header="A value"), 404)
+    resp.headers['X-Something']='A value'
+    return resp
+
+
+
+
+
 
 
     
