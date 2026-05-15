@@ -158,15 +158,37 @@ def me_api():
         image=user.image
     )
 
-@app.route("/")
-def home():
-    return render_template("me.html",username="Apsar",theme="",image="profile.png")
+# @app.route("/")
+# def home():
+#     return render_template("me.html",username="Apsar",theme="",image="profile.png")
+# from werkzeug.middleware.proxy_fix import ProxyFix
+# app.wsgi_app = ProxyFix(app.wsgi_app)
 
 @app.errorhandler(404)
 def page_not_found(error):
     resp=make_response(render_template('error.html', error_code=404, message="Page not found", custom_header="A value"), 404)
     resp.headers['X-Something']='A value'
     return resp
+
+
+import psycopg2 as pg
+from flask import Flask, render_template
+from application.db_config import DB_CONFIG
+
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    conn = pg.connect(**DB_CONFIG)
+    cur = conn.cursor()
+    cur.execute("select * from actor")
+    # rows = cur.fetchall()
+    rows=cur.fetchmany(5)
+    # rows=cur.fetchone()
+    cur.close()
+    conn.close()
+    return render_template('app.html', rows=rows)
 
 
 
